@@ -93,13 +93,16 @@ struct string *append_fancy_buffer_content
 
 int search_fancy_buffer(struct fancy_buffer *buffer, const char character)
 {
-    // return get_index_in_range(buffer->content, buffer->left_index, buffer->right_index, character);
     int index =
     get_index_in_range(buffer->content, buffer->search_start_index, buffer->right_index, character);
-    buffer->search_start_index = buffer->right_index; //?
+    if (index >= 0)
+        buffer->search_start_index = index + 1;
+    else
+        buffer->search_start_index = buffer->right_index; //?
     return index;
 }
 
+//make it so the terminator is a set? 
 struct string *get_next_sequence(struct fancy_buffer *buffer, const char terminator)
 {
     struct string *sequence = NULL;

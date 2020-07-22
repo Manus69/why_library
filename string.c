@@ -1,5 +1,6 @@
 #include "why_lib.h"
 #include <limits.h>
+#include "vector.h"
 
 int string_length(const char *literal)
 {
@@ -47,7 +48,7 @@ struct string *new_string_from_substring(const char *literal, int left_index, in
     return string;
 }
 
-void display_string(const struct string *string)
+void display_string_debug(const struct string *string)
 {
     if (!string)
     {
@@ -65,6 +66,14 @@ void destroy_string(struct string **string)
     free((*string)->string);
     free(*string);
     *string = NULL;
+}
+
+void destroy_string_dumb(void *string)
+{
+    if (!string)
+        return;
+    free(((struct string *)string)->string);
+    free(string);
 }
 
 struct string *copy_string(struct string *string)
@@ -116,18 +125,6 @@ struct string *new_substring(const struct string *string, int left_index, int ri
     return substring;
 }
 
-int get_left_string_index(const struct string *string, const char character)
-{
-    int n = 0;
-    while (n < string->length)
-    {
-        if (string->string[n] == character)
-            return n;
-        n ++;
-    }
-    return -1;
-}
-
 int get_index_after(const struct string *string, int index, const char character)
 {
     int n = index;
@@ -151,4 +148,23 @@ int get_index_in_range
         n ++;
     }
     return -1;
+}
+
+struct vector *string_split(const struct string *source, char separator)
+{
+    struct vector *vector = new_vector(sizeof(struct string *), DEFAULT_VECTOR_SIZE);
+    struct string *substring = NULL;
+    int left_index = 0;
+    int right_index = 0;
+    while (right_index < source->length)
+    {
+        if (source->string[right_index] == separator)
+        {
+            substring = new_string_from_substring(source->string, left_index, right_index - left_index);
+            vector = push(vector, substring);
+            left_index = right_index + 1;
+        }
+        right_index ++;
+    }
+    return vector;
 }
